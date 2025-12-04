@@ -1,5 +1,6 @@
 # 项目说明
 
+Python 3.13.2
 FastAPI+SQLite
 
 ## 部署
