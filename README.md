@@ -1,13 +1,7 @@
 # 项目说明
 
-Python 3.13.2
-FastAPI+SQLite
-
-## 部署
-
-```bash
-venv\Scripts\activate
-```
+Python 3.13.2  
+FastAPI + SQLite
 
 ## 安装依赖
 
@@ -18,6 +12,7 @@ pip install fastapi uvicorn[standard] sqlalchemy pydantic sqlite3 fastapi[all] p
 ## 启动服务
 
 ```bash
+venv\Scripts\activate
 uvicorn app.main:app --reload
 ```
 
