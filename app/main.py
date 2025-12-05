@@ -1,7 +1,7 @@
 # main.py - 确保正确导入路由
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import todos, notes
+from .routes import todos, notes, tags  
 from .database import engine
 from . import models
 
@@ -26,6 +26,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(todos.router)
 app.include_router(notes.router)
+<<<<<<< HEAD
 
 @app.get("/")
 async def root():
@@ -42,3 +43,6 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+=======
+app.include_router(tags.router)  
+>>>>>>> origin/main

@@ -1,12 +1,11 @@
-# crud.py - 添加 Note 的 CRUD 函数
-from sqlalchemy.orm import Session
-from sqlalchemy import or_, desc, asc
+
+# ========== Task 相关函数（保持不变）==========
+from sqlalchemy.orm import Session, aliased
 from . import models, schemas
 from datetime import datetime
 from fastapi import HTTPException
 from typing import Optional, List
-
-# ========== Task 相关函数（保持不变）==========
+from sqlalchemy import func,or_, desc, asc
 
 def get_tasks(db: Session):
     tasks = db.query(models.Task).all()
@@ -73,26 +72,44 @@ def create_task(db: Session, task: schemas.TaskCreate):
 
 def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
-    if not db_task:
+    if db_task is None:
         return None
     
-    if "tags" in task.dict(exclude_unset=True):
+    update_data = task.model_dump(exclude_unset=True)
+
+    if "tags" in update_data:
+
         db.query(models.TaskTag).filter(models.TaskTag.task_id == task_id).delete()
-        if task.tags:
-            tags = db.query(models.Tag).filter(models.Tag.id.in_(task.tags)).all()
-            if len(tags) != len(task.tags):
-                raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
+        
+        tag_ids = update_data["tags"]
+        if tag_ids:
+            # 批量查询标签是否存在
+            tags = db.query(models.Tag).filter(models.Tag.id.in_(tag_ids)).all()
+            if len(tags) != len(tag_ids):
+
+                 pass 
+            
             for tag in tags:
                 task_tag = models.TaskTag(task_id=task_id, tag_id=tag.id)
                 db.add(task_tag)
 
-    update_data = task.dict(exclude_unset=True)
+    #  处理常规字段
     for key, value in update_data.items():
-        if key != "tags":
+        if key == "tags": 
+            continue
+            
+        if hasattr(db_task, key):
             setattr(db_task, key, value)
+
     db_task.updatedAt = datetime.now()
-    db.commit()
-    db.refresh(db_task)
+    
+    try:
+        db.commit()
+        db.refresh(db_task)
+    except Exception as e:
+        db.rollback()
+        raise e
+        
     return get_task(db, db_task.id)
 
 def delete_task(db: Session, task_id: int):
@@ -327,3 +344,55 @@ def search_notes(db: Session, keyword: Optional[str] = None, tag: Optional[int] 
         note_list.append(note_dict)
     
     return note_list
+
+# 标签
+def get_tags_with_counts(db: Session):
+    # 使用 func.count 和 group_by 来统计每个标签关联的任务数量
+    
+    # 1. 查询所有 Tag
+    tags = db.query(models.Tag).all()
+    
+    # 2. 查询标签使用计数 (通过 TaskTag 中间表)
+    tag_counts = db.query(
+        models.TaskTag.tag_id, 
+        func.count(models.TaskTag.task_id).label('count')
+    ).group_by(models.TaskTag.tag_id).all()
+    
+    # 转换为字典方便查找
+    count_map = {tag_id: count for tag_id, count in tag_counts}
+    
+    # 3. 组装最终结果
+    result = []
+    for tag in tags:
+        result.append({
+            "id": tag.id,
+            "name": tag.name,
+            "color": tag.color,
+            "count": count_map.get(tag.id, 0) # 如果没有任务使用，计数为 0
+        })
+        
+    return result
+
+def search_tags(db: Session, query: str):
+    tags = db.query(models.Tag).filter(
+        models.Tag.name.ilike(f"%{query}%")
+    ).all()
+    
+    # 依然需要附加计数信息
+    tag_counts = db.query(
+        models.TaskTag.tag_id, 
+        func.count(models.TaskTag.task_id).label('count')
+    ).group_by(models.TaskTag.tag_id).all()
+    
+    count_map = {tag_id: count for tag_id, count in tag_counts}
+    
+    result = []
+    for tag in tags:
+        result.append({
+            "id": tag.id,
+            "name": tag.name,
+            "color": tag.color,
+            "count": count_map.get(tag.id, 0)
+        })
+        
+    return result

@@ -78,10 +78,11 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
     status: Optional[str] = Field(default=None, pattern="^(todo|done)$")
+    isPinned: Optional[bool] = None
     priority: Optional[str] = Field(default=None, pattern="^(high|medium|low|none)$")
     deadline: Optional[date] = None
     tags: Optional[List[int]] = None
-    isPinned: Optional[bool] = None
+    
 
 class TaskResponse(BaseModel):
     id: int
@@ -95,6 +96,26 @@ class TaskResponse(BaseModel):
     isPinned: bool
     createdAt: str
     updatedAt: str
+
+    class Config:
+        orm_mode = True
+
+class TagCountResponse(BaseModel):
+    id: int
+    name: str
+    color: Optional[str] = None
+    count: int 
+    
+    class Config:
+        orm_mode = True 
+
+class NoteCreate(BaseModel):
+    title: Optional[str] = "未命名笔记"
+    content: Optional[str] = ""
+
+class NoteOut(NoteCreate):
+    id: int
+    created_at: str
 
     class Config:
         orm_mode = True
