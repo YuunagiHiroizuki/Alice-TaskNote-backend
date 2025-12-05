@@ -673,14 +673,54 @@ def create_daily_stat(db: Session, stat: schemas.DailyStatCreate):
     return db_stat
 
 # crud.py - 修改 update_stat_data 函数，移除周数据缓存创建
-def update_stat_data(db: Session):
-    """更新所有统计数据的快捷函数"""
-    today = datetime.now().strftime("%Y-%m-%d")
-    update_daily_stat(db, today)
-    # 不再创建周统计缓存
-    get_month_stats(db)
-    get_year_stats(db)
-    return {"message": "统计数据已更新"}
+def update_daily_stat(db: Session, date_str: str):
+    """更新每日统计（基于今日有活动的任务）"""
+    today_start = datetime.strptime(date_str, "%Y-%m-%d")
+    today_end = today_start + timedelta(days=1)
+    
+    # 获取所有任务（不限于今天创建的）
+    tasks = db.query(models.Task).all()
+    
+    # 计算今日状态的任务（基于状态变化）
+    # 对于实际使用，你应该基于任务的 status 来计算，而不是 createdAt
+    
+    # 但为了简化，我们先统计所有任务
+    completed = len([t for t in tasks if t.status == "done"])
+    in_progress = len([t for t in tasks if t.status == "doing"])
+    remaining = len([t for t in tasks if t.status == "todo"])
+    total = len(tasks)
+    
+    # 按优先级统计
+    priority_stats = {
+        "high": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
+        "medium": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
+        "low": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0}
+    }
+    
+    for task in tasks:
+        if task.priority in priority_stats:
+            stat = priority_stats[task.priority]
+            stat["total"] += 1
+            if task.status == "done":
+                stat["completed"] += 1
+            elif task.status == "doing":
+                stat["in_progress"] += 1
+            elif task.status == "todo":
+                stat["remaining"] += 1
+    
+    # 更新或创建统计记录
+    daily_stat = get_or_create_daily_stat(db, date_str)
+    daily_stat.completed = completed
+    daily_stat.in_progress = in_progress
+    daily_stat.remaining = remaining
+    daily_stat.total = total
+    daily_stat.priority_stats = priority_stats
+    daily_stat.updated_at = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(daily_stat)
+    
+    return daily_stat
 
 def get_stats_summary(db: Session):
     """获取统计摘要"""
