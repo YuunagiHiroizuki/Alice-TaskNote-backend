@@ -45,6 +45,15 @@ class TaskResponse(BaseModel):
     class Config:
         orm_mode = True
 
+class TagCountResponse(BaseModel):
+    id: int
+    name: str
+    color: Optional[str] = None
+    count: int 
+    
+    class Config:
+        orm_mode = True 
+
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""

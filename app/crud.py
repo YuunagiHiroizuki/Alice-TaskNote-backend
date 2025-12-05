@@ -1,9 +1,9 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from . import models, schemas
 from datetime import datetime
 from fastapi import HTTPException
 from typing import Optional
-
+from sqlalchemy import func
 
 def get_tasks(db: Session):
     tasks = db.query(models.Task).all()
@@ -162,3 +162,56 @@ def create_note(db: Session, note: schemas.NoteCreate):
 
 def get_notes(db: Session):
     return db.query(models.Note).all()
+
+
+# 标签
+def get_tags_with_counts(db: Session):
+    # 使用 func.count 和 group_by 来统计每个标签关联的任务数量
+    
+    # 1. 查询所有 Tag
+    tags = db.query(models.Tag).all()
+    
+    # 2. 查询标签使用计数 (通过 TaskTag 中间表)
+    tag_counts = db.query(
+        models.TaskTag.tag_id, 
+        func.count(models.TaskTag.task_id).label('count')
+    ).group_by(models.TaskTag.tag_id).all()
+    
+    # 转换为字典方便查找
+    count_map = {tag_id: count for tag_id, count in tag_counts}
+    
+    # 3. 组装最终结果
+    result = []
+    for tag in tags:
+        result.append({
+            "id": tag.id,
+            "name": tag.name,
+            "color": tag.color,
+            "count": count_map.get(tag.id, 0) # 如果没有任务使用，计数为 0
+        })
+        
+    return result
+
+def search_tags(db: Session, query: str):
+    tags = db.query(models.Tag).filter(
+        models.Tag.name.ilike(f"%{query}%")
+    ).all()
+    
+    # 依然需要附加计数信息
+    tag_counts = db.query(
+        models.TaskTag.tag_id, 
+        func.count(models.TaskTag.task_id).label('count')
+    ).group_by(models.TaskTag.tag_id).all()
+    
+    count_map = {tag_id: count for tag_id, count in tag_counts}
+    
+    result = []
+    for tag in tags:
+        result.append({
+            "id": tag.id,
+            "name": tag.name,
+            "color": tag.color,
+            "count": count_map.get(tag.id, 0)
+        })
+        
+    return result
