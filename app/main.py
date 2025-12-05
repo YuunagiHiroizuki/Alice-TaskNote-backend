@@ -1,7 +1,7 @@
 # main.py - 确保正确导入路由
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import todos, notes, stats  # 导入stats
+from .routes import todos, notes, stats,tags  # 导入stats
 from .database import engine
 from . import models
 
@@ -17,7 +17,7 @@ app = FastAPI(
 # 配置 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174"],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(todos.router)
 app.include_router(notes.router)
 app.include_router(stats.router)  # 添加stats路由
+app.include_router(tags.router)  
 
 @app.get("/")
 async def root():
@@ -45,3 +46,4 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
+ 
