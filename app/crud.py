@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 # crud.py - 添加 Note 的 CRUD 函数
-from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, asc, func
-=======
 from sqlalchemy.orm import Session, aliased
->>>>>>> origin/main
 from . import models, schemas
 from datetime import datetime, timedelta
 from fastapi import HTTPException
-<<<<<<< HEAD
 from typing import Optional, List, Dict
 import random
 from dateutil.relativedelta import relativedelta
@@ -16,10 +11,8 @@ from dateutil.relativedelta import relativedelta
 # ========== 原有函数保持不变 ==========
 
 # ========== Task 相关函数（保持不变）==========
-=======
-from typing import Optional
+
 from sqlalchemy import func
->>>>>>> origin/main
 
 def get_tasks(db: Session):
     tasks = db.query(models.Task).all()
@@ -89,14 +82,6 @@ def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
     if db_task is None:
         return None
     
-<<<<<<< HEAD
-    if "tags" in task.dict(exclude_unset=True):
-        db.query(models.TaskTag).filter(models.TaskTag.task_id == task_id).delete()
-        if task.tags:
-            tags = db.query(models.Tag).filter(models.Tag.id.in_(task.tags)).all()
-            if len(tags) != len(task.tags):
-                raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
-=======
     update_data = task.model_dump(exclude_unset=True)
 
     if "tags" in update_data:
@@ -111,21 +96,16 @@ def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
 
                  pass 
             
->>>>>>> origin/main
             for tag in tags:
                 task_tag = models.TaskTag(task_id=task_id, tag_id=tag.id)
                 db.add(task_tag)
 
     #  处理常规字段
     for key, value in update_data.items():
-<<<<<<< HEAD
-        if key != "tags":
-=======
         if key == "tags": 
             continue
             
         if hasattr(db_task, key):
->>>>>>> origin/main
             setattr(db_task, key, value)
 
     db_task.updatedAt = datetime.now()
@@ -271,7 +251,6 @@ def create_note(db: Session, note: schemas.NoteCreate):
     db.commit()
     db.refresh(db_note)
 
-<<<<<<< HEAD
     # 处理标签关联
     if note.tags:
         tags = db.query(models.Tag).filter(models.Tag.id.in_(note.tags)).all()
@@ -804,9 +783,6 @@ def get_stats_summary(db: Session):
         "week_new": week_tasks,
         "completion_rate": round(completed_tasks / total_tasks * 100, 2) if total_tasks > 0 else 0
     }
-=======
-def get_notes(db: Session):
-    return db.query(models.Note).all()
 
 
 # 标签
@@ -860,4 +836,3 @@ def search_tags(db: Session, query: str):
         })
         
     return result
->>>>>>> origin/main
