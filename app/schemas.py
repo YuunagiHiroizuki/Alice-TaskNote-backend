@@ -1,9 +1,10 @@
-# schemas.py - 添加 Note 相关的模型
-from pydantic import BaseModel, Field
-from typing import Optional, List
+# schemas.py - 修复Pydantic配置
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List, Dict
 from datetime import date, datetime
 from enum import Enum
 
+# ========== 原有模型保持不变，只修改Config ==========
 class PriorityEnum(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
@@ -14,16 +15,13 @@ class StatusEnum(str, Enum):
     DOING = "doing"
     DONE = "done"
 
-# Tag 模型保持不变
 class Tag(BaseModel):
     id: int
     name: str
     color: str
+    
+    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
-    class Config:
-        orm_mode = True
-
-# Note 创建模型
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
@@ -32,7 +30,6 @@ class NoteCreate(BaseModel):
     tags: Optional[List[int]] = None
     isPinned: Optional[bool] = False
 
-# Note 更新模型
 class NoteUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
@@ -41,7 +38,6 @@ class NoteUpdate(BaseModel):
     tags: Optional[List[int]] = None
     isPinned: Optional[bool] = None
 
-# Note 响应模型
 class NoteResponse(BaseModel):
     id: int
     type: str = "note"
@@ -53,11 +49,9 @@ class NoteResponse(BaseModel):
     tags: Optional[List[Tag]] = None
     created_at: datetime
     updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
-    class Config:
-        orm_mode = True
-
-# 搜索参数模型
 class NoteSearchParams(BaseModel):
     search: Optional[str] = None
     tags: Optional[List[int]] = None
@@ -65,11 +59,10 @@ class NoteSearchParams(BaseModel):
     sort_by: Optional[str] = "updated_at"
     order: Optional[str] = "desc"
 
-# Task 模型保持不变
 class TaskCreate(BaseModel):
     title: str
     content: str
-    status: Optional[str] = Field(default="todo", pattern="^(todo|done)$")
+    status: Optional[str] = Field(default="todo", pattern="^(todo|doing|done)$")
     priority: str = Field(pattern="^(high|medium|low|none)$")
     deadline: Optional[date] = None
     tags: Optional[List[int]] = None
@@ -77,7 +70,7 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
-    status: Optional[str] = Field(default=None, pattern="^(todo|done)$")
+    status: Optional[str] = Field(default=None, pattern="^(todo|doing|done)$")
     priority: Optional[str] = Field(default=None, pattern="^(high|medium|low|none)$")
     deadline: Optional[date] = None
     tags: Optional[List[int]] = None
@@ -88,13 +81,72 @@ class TaskResponse(BaseModel):
     type: str = "task"
     title: str
     content: str
-    status: str = Field(pattern="^(todo|done)$")
+    status: str = Field(pattern="^(todo|doing|done)$")
     priority: str = Field(pattern="^(high|medium|low|none)$")
     deadline: Optional[date] = None
     tags: Optional[List[Tag]] = None
     isPinned: bool
     createdAt: str
     updatedAt: str
+    
+    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
-    class Config:
-        orm_mode = True
+# ========== 新增统计模型 ==========
+class TodayStats(BaseModel):
+    completed: int
+    inProgress: int
+    remaining: int
+    total: int
+
+class WeekDataPoint(BaseModel):
+    day: str
+    completed: int
+    inProgress: int
+    remaining: int
+
+class MonthDataPoint(BaseModel):
+    date: str
+    completed: int
+    inProgress: int
+    remaining: int
+
+class YearDataPoint(BaseModel):
+    month: str
+    completed: int
+    inProgress: int
+    remaining: int
+
+class PriorityStat(BaseModel):
+    level: str
+    completed: int
+    inProgress: int
+    remaining: int
+    total: int
+
+class StatsResponse(BaseModel):
+    today: TodayStats
+    week: List[WeekDataPoint]
+    month: List[MonthDataPoint]
+    year: List[YearDataPoint]
+    priority: List[PriorityStat]
+
+class DailyStatCreate(BaseModel):
+    date: str
+    completed: int = 0
+    in_progress: int = 0
+    remaining: int = 0
+    total: int = 0
+    priority_stats: Optional[Dict] = None
+
+class DailyStatResponse(BaseModel):
+    id: int
+    date: str
+    completed: int
+    in_progress: int
+    remaining: int
+    total: int
+    priority_stats: Dict
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式

@@ -1,7 +1,7 @@
 # main.py - 确保正确导入路由
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import todos, notes
+from .routes import todos, notes, stats  # 导入stats
 from .database import engine
 from . import models
 
@@ -9,8 +9,8 @@ from . import models
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="TODO + Notes API",
-    description="任务和笔记管理系统API",
+    title="TODO + Notes + Stats API",
+    description="任务、笔记和统计管理系统API",
     version="1.0.0"
 )
 
@@ -26,19 +26,22 @@ app.add_middleware(
 # 注册路由
 app.include_router(todos.router)
 app.include_router(notes.router)
+app.include_router(stats.router)  # 添加stats路由
 
 @app.get("/")
 async def root():
     return {
-        "message": "TODO + Notes API Service",
+        "message": "TODO + Notes + Stats API Service",
         "version": "1.0.0",
         "docs": "/docs",
         "endpoints": {
             "tasks": "/api/tasks",
-            "notes": "/api/notes"
+            "notes": "/api/notes",
+            "stats": "/api/stats"
         }
     }
 
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+

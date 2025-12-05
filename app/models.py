@@ -1,6 +1,6 @@
-# models.py - 更新 Note 模型
+# models.py - 在现有基础上添加统计相关模型
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -18,6 +18,7 @@ class StatusEnum(str, enum.Enum):
     DOING = "doing"
     DONE = "done"
 
+# ========== 原有模型保持不变 ==========
 class Tag(Base):
     __tablename__ = "tags"
 
@@ -28,7 +29,6 @@ class Tag(Base):
     tasks = relationship("TaskTag", back_populates="tag")
     notes = relationship("NoteTag", back_populates="tag")
 
-# 任务-标签中间表
 class TaskTag(Base):
     __tablename__ = "task_tags"
 
@@ -37,7 +37,6 @@ class TaskTag(Base):
     task = relationship("Task", back_populates="tags")
     tag = relationship("Tag", back_populates="tasks")
 
-# 笔记-标签中间表
 class NoteTag(Base):
     __tablename__ = "note_tags"
 
@@ -73,3 +72,54 @@ class Note(Base):
     tags = relationship("NoteTag", back_populates="note")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# ========== 新增统计相关模型 ==========
+class DailyStat(Base):
+    """每日统计"""
+    __tablename__ = "daily_stats"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(String, index=True, unique=True)  # 格式: YYYY-MM-DD
+    
+    # 今日统计
+    completed = Column(Integer, default=0)
+    in_progress = Column(Integer, default=0)
+    remaining = Column(Integer, default=0)
+    total = Column(Integer, default=0)
+    
+    # 优先级统计（存储为JSON）
+    priority_stats = Column(JSON, default={
+        "high": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
+        "medium": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
+        "low": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0}
+    })
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class WeeklyStat(Base):
+    """每周统计"""
+    __tablename__ = "weekly_stats"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    week_start = Column(String, index=True)  # 周开始日期: YYYY-MM-DD
+    week_data = Column(JSON, default=[])  # 一周的每日数据
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class MonthlyStat(Base):
+    """每月统计"""
+    __tablename__ = "monthly_stats"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    month = Column(String, index=True)  # 格式: YYYY-MM
+    month_data = Column(JSON, default=[])  # 30天的数据
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class YearlyStat(Base):
+    """年度统计"""
+    __tablename__ = "yearly_stats"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    year = Column(String, index=True)  # 格式: YYYY
+    year_data = Column(JSON, default=[])  # 12个月的数据
+    created_at = Column(DateTime, default=datetime.utcnow)
