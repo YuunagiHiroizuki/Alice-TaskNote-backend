@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 from datetime import datetime
 from fastapi import HTTPException
+from typing import Optional
 
-# 1. 获取所有任务
+
 def get_tasks(db: Session):
     tasks = db.query(models.Task).all()
     # 处理标签关联（前端需要完整的 Tag 信息）
@@ -111,6 +112,29 @@ def delete_task(db: Session, task_id: int):
     db.commit()
     return True
 
+# 6. 搜索任务
+def search_tasks(db: Session, query: str):
+    tasks = db.query(models.Task).filter(
+        (models.Task.title.ilike(f"%{query}%")) | 
+        (models.Task.content.ilike(f"%{query}%"))
+    ).all()
+    task_list = []
+    for task in tasks:
+        task_dict = {
+            "id": task.id,
+            "type": task.type,
+            "title": task.title,
+            "content": task.content,
+            "status": task.status,
+            "priority": task.priority,
+            "deadline": task.deadline,
+            "isPinned": task.isPinned,
+            "createdAt": task.createdAt.strftime("%Y-%m-%d %H:%M:%S"),
+            "updatedAt": task.updatedAt.strftime("%Y-%m-%d %H:%M:%S"),
+            "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.tags]
+        }
+        task_list.append(task_dict)
+    return task_list
 
 # 笔记
 def create_note(db: Session, note: schemas.NoteCreate):

@@ -2,13 +2,18 @@ from fastapi import APIRouter, Depends,HTTPException
 from sqlalchemy.orm import Session
 from .. import crud, schemas
 from ..database import get_db
+from typing import Optional
 
 router = APIRouter(prefix="/api/tasks", tags=["todos"])
 
 @router.get("/", response_model=list[schemas.TaskResponse])
-def read_tasks(db: Session = Depends(get_db)):
-    tasks = crud.get_tasks(db)
-    return tasks
+def read_tasks(
+    q: Optional[str] = None,  
+    db: Session = Depends(get_db)
+):
+    if q:
+        return crud.search_tasks(db, query=q)
+    return crud.get_tasks(db)
 
 # 2. 获取单个任务
 @router.get("/{task_id}", response_model=schemas.TaskResponse)
@@ -38,3 +43,4 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"success": True, "message": "Task deleted successfully"}
+
