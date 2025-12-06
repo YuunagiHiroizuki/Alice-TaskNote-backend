@@ -79,6 +79,14 @@ class NoteSearchParams(BaseModel):
     sort_by: Optional[str] = "updated_at"
     order: Optional[str] = "desc"
 
+class NoteOut(NoteCreate):
+    id: int
+    created_at: str
+
+    model_config = {
+        "from_attributes": True
+    }
+    
 class TaskCreate(BaseModel):
     title: str
     content: str
