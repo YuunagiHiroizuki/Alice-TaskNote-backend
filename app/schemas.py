@@ -25,6 +25,13 @@ class TodoCreate(BaseModel):
     title: str
     is_done: Optional[bool] = False
     
+class TodoOut(TodoCreate):
+    id: int
+    created_at: str
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class NoteOut(NoteCreate):
