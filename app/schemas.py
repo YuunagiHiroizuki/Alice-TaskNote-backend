@@ -42,9 +42,8 @@ class TaskResponse(BaseModel):
     updatedAt: str
 
 
-    model_config = {
-        "from_attributes": True
-    }
+    class Config:
+        orm_mode = True
 
 class TagCountResponse(BaseModel):
     id: int
@@ -55,6 +54,18 @@ class TagCountResponse(BaseModel):
     class Config:
         orm_mode = True 
 
+class TagCreate(BaseModel):
+    name: str
+    color: Optional[str] = None # 允许颜色可选
+
+# 标签和计数响应 (已存在)
+class TagCountResponse(Tag):
+    count: int
+    
+    class Config:
+        orm_mode = True
+
+
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
@@ -63,6 +74,5 @@ class NoteOut(NoteCreate):
     id: int
     created_at: str
 
-    model_config = {
-        "from_attributes": True
-    }
+    class Config:
+        orm_mode = True

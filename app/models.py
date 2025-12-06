@@ -42,12 +42,6 @@ class Task(Base):
     # 关联标签（多对多）
     tags = relationship("TaskTag", back_populates="task")
 
-# class Todo(Base):
-#     __tablename__ = "todos"
-#     id = Column(Integer, primary_key=True, index=True)
-#     title = Column(String, nullable=False)
-#     is_done = Column(Boolean, default=False)
-#     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Note(Base):
     __tablename__ = "notes"
