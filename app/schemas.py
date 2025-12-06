@@ -21,6 +21,10 @@ class Tag(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
+class TodoCreate(BaseModel):
+    title: str
+    is_done: Optional[bool] = False
+    
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
