@@ -26,7 +26,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(todos.router)
 app.include_router(notes.router)
-<<<<<<< HEAD
+
 
 @app.get("/")
 async def root():
@@ -43,6 +43,6 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
-=======
+
 app.include_router(tags.router)  
->>>>>>> origin/main
+
