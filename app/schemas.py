@@ -121,12 +121,17 @@ class TaskResponse(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
+<<<<<<< HEAD
 # ========== 新增统计模型 ==========
 class TodayStats(BaseModel):
     completed: int
     inProgress: int
     remaining: int
     total: int
+=======
+    class Config:
+        orm_mode = True
+>>>>>>> feature/note-v2
 
 class WeekDataPoint(BaseModel):
     day: str
@@ -177,6 +182,7 @@ class DailyStatCreate(BaseModel):
 
 class DailyStatResponse(BaseModel):
     id: int
+<<<<<<< HEAD
     date: str
     completed: int
     in_progress: int
@@ -187,3 +193,10 @@ class DailyStatResponse(BaseModel):
     updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
+=======
+    created_at: str
+
+    model_config = {
+        "from_attributes": True
+    }
+>>>>>>> feature/note-v2

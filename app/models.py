@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
@@ -8,6 +9,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum, Float, DateTime
 from sqlalchemy.orm import relationship
 >>>>>>> feature/stats
+=======
+# models.py - 更新 Note 模型
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base
+>>>>>>> feature/note-v2
 from datetime import datetime
 import enum
 from .database import Base

@@ -136,6 +136,7 @@ def batch_delete_notes(
         "deleted_count": deleted_count,
         "total_requested": len(note_ids)
     }
+<<<<<<< HEAD
 
 # 获取所有笔记
 @router.get("/", response_model=list[schemas.NoteOut])
@@ -146,4 +147,11 @@ def read_notes(db: Session = Depends(get_db)):
     获取所有笔记
     """
 >>>>>>> feature/stats
+=======
+@router.get("/", response_model=list[schemas.NoteOut])
+def read_notes(db: Session = Depends(get_db)):
+    """
+    获取所有笔记
+    """
+>>>>>>> feature/note-v2
     return crud.get_notes(db)
