@@ -24,6 +24,19 @@ class Tag(BaseModel):
         "from_attributes": True
     }
 
+class TodoCreate(BaseModel):
+    title: str
+    is_done: Optional[bool] = False
+
+class TodoOut(TodoCreate):
+    id: int
+    created_at: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 # Note 创建模型
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
