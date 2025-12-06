@@ -239,9 +239,9 @@ def get_note(db: Session, note_id: int):
 # NOTE
 def create_note(db: Session, note: schemas.NoteCreate):
    db_note = models.Note(**note.model_dump(), isPinned=note.isPinned if note.isPinned else False)
-    db.add(db_note)
-    db.commit()
-    db.refresh(db_note)
+   db.add(db_note)
+   db.commit()
+   db.refresh(db_note)
 
     # 处理标签关联
     if note.标签:
