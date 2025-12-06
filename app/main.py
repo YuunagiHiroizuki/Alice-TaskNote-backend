@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册路由
 app.include_router(todos.router)
 app.include_router(notes.router)
 app.include_router(tags.router)  

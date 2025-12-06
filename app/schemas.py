@@ -42,8 +42,9 @@ class TaskResponse(BaseModel):
     updatedAt: str
 
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class TagCountResponse(BaseModel):
     id: int
@@ -62,5 +63,6 @@ class NoteOut(NoteCreate):
     id: int
     created_at: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
