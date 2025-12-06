@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import todos, notes, stats # 导入stats
 from .database import engine
-from . import models
+from .models import * 
 
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine) 
 
 app = FastAPI(
     title="TODO + Notes + Stats API",
@@ -16,8 +16,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5174",  # 移除末尾斜杠
-        "http://127.0.0.1:5174",  # 添加127.0.0.1
+        "http://localhost:5173",  # 移除末尾斜杠
+        
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -45,5 +45,3 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
-
- 
