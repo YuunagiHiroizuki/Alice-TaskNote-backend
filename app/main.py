@@ -26,7 +26,7 @@ app.add_middleware(
 app.include_router(todos.router)
 app.include_router(notes.router)
 app.include_router(stats.router)  # 添加stats路由
-app.include_router(tags.router)  
+  
 
 @app.get("/")
 async def root():
