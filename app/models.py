@@ -1,6 +1,6 @@
 # models.py - 在现有基础上添加统计相关模型
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum, Float
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum, Float, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
