@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base  
 from sqlalchemy.orm import sessionmaker
-from .models import Base
+
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./todo_notes.db"
 
@@ -11,6 +12,7 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+Base = declarative_base()
 # 依赖注入
 def get_db():
     db = SessionLocal()
@@ -18,6 +20,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# 创建数据库表
-Base.metadata.create_all(bind=engine)
