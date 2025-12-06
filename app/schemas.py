@@ -20,8 +20,9 @@ class Tag(BaseModel):
     name: str
     color: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 # Note 创建模型
 class NoteCreate(BaseModel):
@@ -117,5 +118,6 @@ class NoteOut(NoteCreate):
     id: int
     created_at: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }

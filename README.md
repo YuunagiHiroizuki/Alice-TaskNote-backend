@@ -6,7 +6,7 @@ Use FastAPI + SQLite
 ## 安装依赖
 
 ```bash
-pip install fastapi uvicorn[standard] sqlalchemy pydantic sqlite3 fastapi[all] python-multipart
+pip install fastapi uvicorn[standard] sqlalchemy python-multipart pydantic
 ```
 
 ## 启动服务

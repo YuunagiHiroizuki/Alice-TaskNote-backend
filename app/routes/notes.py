@@ -136,3 +136,6 @@ def batch_delete_notes(
         "deleted_count": deleted_count,
         "total_requested": len(note_ids)
     }
+@router.get("/", response_model=list[schemas.NoteOut])
+def read_notes(db: Session = Depends(get_db)):
+    return crud.get_notes(db)
