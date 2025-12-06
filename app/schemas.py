@@ -1,4 +1,3 @@
-# schemas.py - 修复Pydantic配置
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict
 from datetime import date, datetime
@@ -22,7 +21,6 @@ class Tag(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
-<<<<<<< HEAD
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
@@ -118,15 +116,6 @@ class MonthDataPoint(BaseModel):
     
     class Config:
         orm_mode = True 
-=======
-    model_config = {
-        "from_attributes": True
-    }
->>>>>>> 667f9bd996d2316d18fc508766c5a6a719be3eba
-
-class NoteCreate(BaseModel):
-    title: Optional[str] = "未命名笔记"
-    content: Optional[str] = ""
 
 class YearDataPoint(BaseModel):
     month: str
@@ -134,7 +123,6 @@ class YearDataPoint(BaseModel):
     inProgress: int
     remaining: int
 
-<<<<<<< HEAD
 class PriorityStat(BaseModel):
     level: str
     completed: int
@@ -169,8 +157,3 @@ class DailyStatResponse(BaseModel):
     updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
-=======
-    model_config = {
-        "from_attributes": True
-    }
->>>>>>> 667f9bd996d2316d18fc508766c5a6a719be3eba
