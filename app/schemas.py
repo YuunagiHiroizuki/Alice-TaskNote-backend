@@ -34,14 +34,8 @@ class TodoOut(TodoCreate):
     }
 
 
-class NoteOut(NoteCreate):
-    id: int
-    created_at: str
 
-    model_config = {
-        "from_attributes": True
-    }
-    
+
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
@@ -50,6 +44,13 @@ class NoteCreate(BaseModel):
     tags: Optional[List[int]] = None
     isPinned: Optional[bool] = False
 
+class NoteOut(NoteCreate):
+    id: int
+    created_at: str
+
+    model_config = {
+        "from_attributes": True
+    }
 class NoteUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
