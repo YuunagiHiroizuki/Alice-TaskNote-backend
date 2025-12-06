@@ -56,6 +56,10 @@ def create_task(db: Session, task: schemas.TaskCreate):
         isPinned=False
     )
     db.add(db_task)
+# TODO
+def create_todo(db: Session, todo: schemas.TodoCreate):
+    db_todo = models.Todo(**todo.model_dump())
+    db.add(db_todo)
     db.commit()
     db.refresh(db_task)
 
@@ -232,6 +236,7 @@ def get_note(db: Session, note_id: int):
         "tags": [{"id": nt.tag.id, "name": nt.tag.name, "color": nt.tag.color} for nt in note.tags]
     }
 
+<<<<<<< HEAD
 def create_note(db: Session, note: schemas.NoteCreate):
     db_note = models.Note(
         title=note.title,
@@ -240,6 +245,11 @@ def create_note(db: Session, note: schemas.NoteCreate):
         status=note.status,
         isPinned=note.isPinned if note.isPinned else False
     )
+=======
+# NOTE
+def create_note(db: Session, note: schemas.NoteCreate):
+    db_note = models.Note(**note.model_dump())
+>>>>>>> origin/main
     db.add(db_note)
     db.commit()
     db.refresh(db_note)
