@@ -60,7 +60,7 @@ def create_task(db: Session, task: schemas.TaskCreate):
 
     if task.标签:
         tags = db.query(models.Tag).filter(models.Tag.id.in_(task.标签)).all()
-        if len(tags) != len(task.标签):
+        if len(标签) != len(task.标签):
             raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
         for tag in tags:
             task_tag = models.TaskTag(task_id=db_task.id, tag_id=tag.id)
@@ -83,7 +83,7 @@ def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
         if tag_ids:
             # 批量查询标签是否存在
             tags = db.query(models.Tag).filter(models.Tag.id.in_(tag_ids)).all()
-            if len(tags) != len(tag_ids):
+            if len(标签) != len(tag_ids):
                 pass 
             
             for tag in tags:
@@ -116,11 +116,7 @@ def delete_task(db: Session, task_id: int):
     db.commit()
     return True
 
-def create_todo(db: Session, todo: schemas.TodoCreate):
-    db_todo = models.Todo(**todo.model_dump())
-    db.add(db_todo)
-    db.commit()
-    return True
+
 
 def search_tasks(db: Session, query: str):
     tasks = db.query(models.Task).filter(
