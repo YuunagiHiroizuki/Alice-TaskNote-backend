@@ -25,6 +25,16 @@ class TodoCreate(BaseModel):
     title: str
     is_done: Optional[bool] = False
     
+
+
+class NoteOut(NoteCreate):
+    id: int
+    created_at: str
+
+    model_config = {
+        "from_attributes": True
+    }
+    
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
