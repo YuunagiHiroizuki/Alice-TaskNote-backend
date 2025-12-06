@@ -59,6 +59,10 @@ def create_task(db: Session, task: schemas.TaskCreate):
         isPinned=False  # 默认不置顶
     )
     db.add(db_task)
+# TODO
+def create_todo(db: Session, todo: schemas.TodoCreate):
+    db_todo = models.Todo(**todo.model_dump())
+    db.add(db_todo)
     db.commit()
     db.refresh(db_task)
 
@@ -136,9 +140,9 @@ def search_tasks(db: Session, query: str):
         task_list.append(task_dict)
     return task_list
 
-# 笔记
+# NOTE
 def create_note(db: Session, note: schemas.NoteCreate):
-    db_note = models.Note(title=note.title, content=note.content)
+    db_note = models.Note(**note.model_dump())
     db.add(db_note)
     db.commit()
     db.refresh(db_note)

@@ -41,8 +41,9 @@ class TaskResponse(BaseModel):
     updatedAt: str
 
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
@@ -52,5 +53,6 @@ class NoteOut(NoteCreate):
     id: int
     created_at: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
