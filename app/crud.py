@@ -6,6 +6,10 @@ from fastapi import HTTPException
 from typing import Optional, List
 from sqlalchemy import func, or_, desc, asc
 
+def create_todo(db: Session, todo: schemas.TodoCreate):
+    db_todo = models.Todo(**todo.model_dump())
+    db.add(db_todo)
+    
 def get_tasks(db: Session):
     tasks = db.query(models.Task).all()
     task_list = []
