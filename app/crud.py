@@ -22,7 +22,7 @@ def get_tasks(db: Session):
             "isPinned": task.isPinned,
             "createdAt": task.createdAt.strftime("%Y-%m-%d %H:%M:%S"),
             "updatedAt": task.updatedAt.strftime("%Y-%m-%d %H:%M:%S"),
-            "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.tags]
+            "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.标签]
         }
         task_list.append(task_dict)
     return task_list
@@ -42,7 +42,7 @@ def get_task(db: Session, task_id: int):
         "isPinned": task.isPinned,
         "createdAt": task.createdAt.strftime("%Y-%m-%d %H:%M:%S"),
         "updatedAt": task.updatedAt.strftime("%Y-%m-%d %H:%M:%S"),
-        "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.tags]
+        "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.标签]
     }
     return task_dict
 
@@ -59,9 +59,9 @@ def create_task(db: Session, task: schemas.TaskCreate):
     db.commit()
     db.refresh(db_task)
 
-    if task.tags:
-        tags = db.query(models.Tag).filter(models.Tag.id.in_(task.tags)).all()
-        if len(tags) != len(task.tags):
+    if task.标签:
+        tags = db.query(models.Tag).filter(models.Tag.id.in_(task.标签)).all()
+        if len(标签) != len(task.标签):
             raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
         for tag in tags:
             task_tag = models.TaskTag(task_id=db_task.id, tag_id=tag.id)
@@ -85,7 +85,7 @@ def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
         if tag_ids:
             # 批量查询标签是否存在
             tags = db.query(models.Tag).filter(models.Tag.id.in_(tag_ids)).all()
-            if len(tags) != len(tag_ids):
+            if len(标签) != len(tag_ids):
 
                  pass 
             
@@ -142,7 +142,7 @@ def search_tasks(db: Session, query: str):
             "isPinned": task.isPinned,
             "createdAt": task.createdAt.strftime("%Y-%m-%d %H:%M:%S"),
             "updatedAt": task.updatedAt.strftime("%Y-%m-%d %H:%M:%S"),
-            "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.tags]
+            "tags": [{"id": tt.tag.id, "name": tt.tag.name, "color": tt.tag.color} for tt in task.标签]
         }
         task_list.append(task_dict)
     return task_list
@@ -212,7 +212,7 @@ def get_notes(
             "isPinned": note.isPinned,
             "created_at": note.created_at,
             "updated_at": note.updated_at,
-            "tags": [{"id": nt.tag.id, "name": nt.tag.name, "color": nt.tag.color} for nt in note.tags]
+            "tags": [{"id": nt.tag.id, "name": nt.tag.name, "color": nt.tag.color} for nt in note.标签]
         }
         note_list.append(note_dict)
     
@@ -233,20 +233,20 @@ def get_note(db: Session, note_id: int):
         "isPinned": note.isPinned,
         "created_at": note.created_at,
         "updated_at": note.updated_at,
-        "tags": [{"id": nt.tag.id, "name": nt.tag.name, "color": nt.tag.color} for nt in note.tags]
+        "tags": [{"id": nt.tag.id, "name": nt.tag.name, "color": nt.tag.color} for nt in note.标签]
     }
 
 # NOTE
 def create_note(db: Session, note: schemas.NoteCreate):
-    db_note = models。Note(**note。model_dump()，isPinned=note。isPinned if note。isPinned else False)
+   db_note = models.Note(**note.model_dump(), isPinned=note.isPinned if note.isPinned else False)
     db.add(db_note)
     db.commit()
     db.refresh(db_note)
 
     # 处理标签关联
-    if note.tags:
-        tags = db.query(models.Tag).filter(models.Tag.id.in_(note.tags)).all()
-        if len(tags) != len(note.tags):
+    if note.标签:
+        tags = db.query(models.Tag).filter(models.Tag.id.in_(note.标签)).all()
+        if len(标签) != len(note.标签):
             raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
         for tag in tags:
             note_tag = models.NoteTag(note_id=db_note.id, tag_id=tag.id)
@@ -265,9 +265,9 @@ def update_note(db: Session, note_id: int, note_update: schemas.NoteUpdate):
         # 删除现有标签关联
         db.query(models.NoteTag).filter(models.NoteTag.note_id == note_id).delete()
         # 添加新的标签关联
-        if note_update.tags:
-            tags = db.query(models.Tag).filter(models.Tag.id.in_(note_update.tags)).all()
-            if len(tags) != len(note_update.tags):
+        if note_update.标签:
+            tags = db.query(models.Tag).filter(models.Tag.id.in_(note_update.标签)).all()
+            if len(标签) != len(note_update.标签):
                 raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
             for tag in tags:
                 note_tag = models.NoteTag(note_id=note_id, tag_id=tag.id)
