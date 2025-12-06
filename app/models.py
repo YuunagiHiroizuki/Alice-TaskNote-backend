@@ -1,30 +1,17 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import declarative_base
-=======
 # models.py - 在现有基础上添加统计相关模型
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum, Float, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, Text, JSON, Enum, Float, DateTime
 from sqlalchemy.orm import relationship
->>>>>>> feature/stats
-=======
-# models.py - 更新 Note 模型
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, DateTime, Text, JSON, Enum
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import declarative_base
->>>>>>> feature/note-v2
 from datetime import datetime
 import enum
 from .database import Base
 
 # 优先级枚举
 class PriorityEnum(str, enum.Enum):
+    NONE = "none"  
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+    
 
 # 状态枚举
 class StatusEnum(str, enum.Enum):
@@ -32,6 +19,13 @@ class StatusEnum(str, enum.Enum):
     DOING = "doing"
     DONE = "done"
 
+class Todo(Base):
+    __tablename__ = "todos"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    is_done = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
 # ========== 原有模型保持不变 ==========
 class Tag(Base):
     __tablename__ = "tags"
@@ -80,7 +74,7 @@ class Note(Base):
     type = Column(String, default="note")  # 固定为 note
     title = Column(String, default="未命名笔记")
     content = Column(Text, default="")
-    priority = Column(Enum(PriorityEnum), default=PriorityEnum.MEDIUM)
+    priority = Column(Enum(PriorityEnum), default=PriorityEnum.NONE) 
     status = Column(Enum(StatusEnum), default=StatusEnum.DONE)
     isPinned = Column(Boolean, default=False)
     tags = relationship("NoteTag", back_populates="note")
@@ -101,12 +95,15 @@ class DailyStat(Base):
     remaining = Column(Integer, default=0)
     total = Column(Integer, default=0)
     
-    # 优先级统计（存储为JSON）
-    priority_stats = Column(JSON, default={
-        "high": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
-        "medium": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
-        "low": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0}
-    })
+    # 优先级统计（存储为JSON）- 使用可调用对象避免共享引用
+    def _default_priority_stats():
+        return {
+            "high": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
+            "medium": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0},
+            "low": {"completed": 0, "in_progress": 0, "remaining": 0, "total": 0}
+        }
+    
+    priority_stats = Column(JSON, default=_default_priority_stats)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -117,7 +114,7 @@ class WeeklyStat(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     week_start = Column(String, index=True)  # 周开始日期: YYYY-MM-DD
-    week_data = Column(JSON, default=[])  # 一周的每日数据
+    week_data = Column(JSON, default=list)  # 使用可调用对象 list
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class MonthlyStat(Base):
@@ -126,7 +123,7 @@ class MonthlyStat(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     month = Column(String, index=True)  # 格式: YYYY-MM
-    month_data = Column(JSON, default=[])  # 30天的数据
+    month_data = Column(JSON, default=list)  # 使用可调用对象 list
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class YearlyStat(Base):
@@ -135,5 +132,5 @@ class YearlyStat(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     year = Column(String, index=True)  # 格式: YYYY
-    year_data = Column(JSON, default=[])  # 12个月的数据
+    year_data = Column(JSON, default=list)  # 使用可调用对象 list
     created_at = Column(DateTime, default=datetime.utcnow)

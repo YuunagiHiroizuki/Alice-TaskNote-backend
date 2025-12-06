@@ -1,3 +1,4 @@
+# schemas.py - 修复Pydantic配置
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict
 from datetime import date, datetime
@@ -5,6 +6,7 @@ from enum import Enum
 
 # ========== 原有模型保持不变，只修改Config ==========
 class PriorityEnum(str, Enum):
+    NONE = "none"
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -33,13 +35,10 @@ class TodoOut(TodoCreate):
         "from_attributes": True
     }
 
-
-
-
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
     content: Optional[str] = ""
-    priority: Optional[PriorityEnum] = PriorityEnum.MEDIUM
+    priority: Optional[PriorityEnum] = PriorityEnum.NONE
     status: Optional[StatusEnum] = StatusEnum.DONE
     tags: Optional[List[int]] = None
     isPinned: Optional[bool] = False
@@ -51,6 +50,7 @@ class NoteOut(NoteCreate):
     model_config = {
         "from_attributes": True
     }
+
 class NoteUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
@@ -70,8 +70,8 @@ class NoteResponse(BaseModel):
     tags: Optional[List[Tag]] = None
     created_at: datetime
     updated_at: datetime
-    
-    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
+
+    model_config = ConfigDict(from_attributes=True)  # 在Pydantic V2中使用正确的配置
 
 class NoteSearchParams(BaseModel):
     search: Optional[str] = None
@@ -80,14 +80,6 @@ class NoteSearchParams(BaseModel):
     sort_by: Optional[str] = "updated_at"
     order: Optional[str] = "desc"
 
-class NoteOut(NoteCreate):
-    id: int
-    created_at: str
-
-    model_config = {
-        "from_attributes": True
-    }
-    
 class TaskCreate(BaseModel):
     title: str
     content: str
@@ -105,7 +97,6 @@ class TaskUpdate(BaseModel):
     deadline: Optional[date] = None
     tags: Optional[List[int]] = None
     
-
 class TaskResponse(BaseModel):
     id: int
     type: str = "task"
@@ -118,20 +109,15 @@ class TaskResponse(BaseModel):
     isPinned: bool
     createdAt: str
     updatedAt: str
-    
-    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
-<<<<<<< HEAD
+    model_config = ConfigDict(from_attributes=True)  # 在Pydantic V2中使用正确的配置
+
 # ========== 新增统计模型 ==========
 class TodayStats(BaseModel):
     completed: int
     inProgress: int
     remaining: int
     total: int
-=======
-    class Config:
-        orm_mode = True
->>>>>>> feature/note-v2
 
 class WeekDataPoint(BaseModel):
     day: str
@@ -144,13 +130,12 @@ class MonthDataPoint(BaseModel):
     completed: int
     inProgress: int
     remaining: int
-    id: int
-    name: str
+    id: Optional[int] = None  # 改为可选
+    name: Optional[str] = None  # 改为可选
     color: Optional[str] = None
-    count: int 
+    count: Optional[int] = 0  # 改为可选，默认0
     
-    class Config:
-        orm_mode = True 
+    model_config = ConfigDict(from_attributes=True)  # 使用新的配置方式
 
 class YearDataPoint(BaseModel):
     month: str
@@ -165,10 +150,19 @@ class PriorityStat(BaseModel):
     remaining: int
     total: int
 
+class StatsMonthDataPoint(BaseModel):
+    date: str
+    completed: int
+    inProgress: int
+    remaining: int
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
 class StatsResponse(BaseModel):
     today: TodayStats
     week: List[WeekDataPoint]
-    month: List[MonthDataPoint]
+    month: List[StatsMonthDataPoint] 
     year: List[YearDataPoint]
     priority: List[PriorityStat]
 
@@ -182,7 +176,6 @@ class DailyStatCreate(BaseModel):
 
 class DailyStatResponse(BaseModel):
     id: int
-<<<<<<< HEAD
     date: str
     completed: int
     in_progress: int
@@ -191,12 +184,5 @@ class DailyStatResponse(BaseModel):
     priority_stats: Dict
     created_at: datetime
     updated_at: datetime
-    
-    model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
-=======
-    created_at: str
 
-    model_config = {
-        "from_attributes": True
-    }
->>>>>>> feature/note-v2
+    model_config = ConfigDict(from_attributes=True)  # 统一使用新的配置方式

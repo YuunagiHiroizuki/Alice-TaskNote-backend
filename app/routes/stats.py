@@ -180,9 +180,9 @@ def get_week_data(db: Session = Depends(get_db)):
     """
     获取本周数据 - 优先使用实际数据
     """
-    # 直接调用 get_week_stats，它现在返回字典
     week_stat = crud.get_week_stats(db)
-    return week_stat
+    # 直接返回列表，而不是字典
+    return week_stat.get("week_data", [])
 
 
 @router.get("/month")
@@ -191,7 +191,8 @@ def get_month_data(db: Session = Depends(get_db)):
     获取本月数据 - 优先使用实际数据
     """
     month_stat = crud.get_month_stats(db)
-    return month_stat
+    # 直接返回列表，而不是字典
+    return month_stat.get("month_data", [])
 
 @router.get("/year")
 def get_year_data(db: Session = Depends(get_db)):
@@ -199,7 +200,8 @@ def get_year_data(db: Session = Depends(get_db)):
     获取年度数据 - 优先使用实际数据
     """
     year_stat = crud.get_year_stats(db)
-    return year_stat
+    # 直接返回列表，而不是字典
+    return year_stat.get("year_data", [])
 
 @router.get("/priority")
 def get_priority_stats(db: Session = Depends(get_db)):
@@ -219,7 +221,7 @@ def get_priority_stats(db: Session = Depends(get_db)):
             "total": stats["total"]
         })
     
-    return {"priorityStats": priority_stats}
+    return {"priority": priority_stats}  # 保持与主端点一致的结构
 
 @router.get("/summary")
 def get_stats_summary(db: Session = Depends(get_db)):
@@ -229,10 +231,10 @@ def get_stats_summary(db: Session = Depends(get_db)):
     summary = crud.get_stats_summary(db)
     return summary
 
-# 修复这个问题：使用 Path 而不是 Query 来定义路径参数
+# routes/stats.py - 修复get_trend_data
 @router.get("/trend/{period}")
 def get_trend_data(
-    period: str = Path(..., description="周期: week, month, year"),  # 改为 Path
+    period: str = Path(..., description="周期: week, month, year"),
     db: Session = Depends(get_db)
 ):
     """
@@ -240,23 +242,21 @@ def get_trend_data(
     """
     if period == "week":
         week_stat = crud.get_week_stats(db)
-        return {"period": "week", "data": week_stat.week_data}
+        return week_stat.get("week_data", [])  # 直接返回列表
     elif period == "month":
         month_stat = crud.get_month_stats(db)
-        return {"period": "month", "data": month_stat.month_data}
+        return month_stat.get("month_data", [])  # 直接返回列表
     elif period == "year":
         year_stat = crud.get_year_stats(db)
-        return {"period": "year", "data": year_stat.year_data}
+        return year_stat.get("year_data", [])  # 直接返回列表
     else:
         raise HTTPException(status_code=400, detail="无效的周期参数")
-
+        
 @router.get("/mock")
 def get_mock_stats():
     """
     获取模拟统计数据（用于开发测试）
     """
-    from datetime import datetime, timedelta
-    import random
     
     # 生成今日统计数据
     today_stats = {

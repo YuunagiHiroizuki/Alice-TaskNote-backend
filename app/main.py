@@ -1,36 +1,24 @@
 # main.py - 确保正确导入路由
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-<<<<<<< HEAD
-<<<<<<< HEAD
-from .routes import todos, notes
-=======
 from .routes import todos, notes, stats # 导入stats
->>>>>>> feature/stats
-=======
-from .routes import todos, notes, tags  
->>>>>>> feature/note-v2
 from .database import engine
 from . import models
 
-# 创建数据库表
 models.Base.metadata.create_all(bind=engine)
 
-<<<<<<< HEAD
-
-app = FastAPI(title="TODO + Notes API")
-=======
 app = FastAPI(
     title="TODO + Notes + Stats API",
     description="任务、笔记和统计管理系统API",
-    version="1.0.0"
 )
->>>>>>> feature/stats
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5174",  # 移除末尾斜杠
+        "http://127.0.0.1:5174",  # 添加127.0.0.1
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,12 +26,8 @@ app.add_middleware(
 
 app.include_router(todos.router)
 app.include_router(notes.router)
-<<<<<<< HEAD
 app.include_router(stats.router)  # 添加stats路由
   
-=======
-
->>>>>>> feature/note-v2
 
 @app.get("/")
 async def root():
@@ -62,9 +46,4 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
-<<<<<<< HEAD
  
-=======
-app.include_router(tags.router)  
-
->>>>>>> feature/note-v2
