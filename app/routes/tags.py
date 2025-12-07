@@ -17,15 +17,6 @@ def read_and_search_tags(
         return crud.search_tags(db, query=q)
     return crud.get_tags_with_counts(db)
 
-@router.get("/", response_model=list[schemas.TagCountResponse])
-def read_and_search_tags(
-    q: Optional[str] = None,  
-    db: Session = Depends(get_db)
-):
-    if q:
-        return crud.search_tags(db, query=q)
-    return crud.get_tags_with_counts(db)
-
 # 新增标签
 @router.post("/", response_model=schemas.Tag)
 def create_new_tag(tag: schemas.TagCreate, db: Session = Depends(get_db)):
@@ -46,6 +37,8 @@ def delete_tag(tag_id: int, db: Session = Depends(get_db)):
     
     # 先删除关联的任务-标签关系
     db.query(models.TaskTag).filter(models.TaskTag.tag_id == tag_id).delete()
+    # 删除关联的笔记-标签关系
+    db.query(models.NoteTag).filter(models.NoteTag.tag_id == tag_id).delete()
     # 再删除标签本身
     db.delete(db_tag)
     db.commit()
