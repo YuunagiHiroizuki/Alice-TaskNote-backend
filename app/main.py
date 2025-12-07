@@ -16,7 +16,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # 移除末尾斜杠
+        "http://localhost:5173",  
         
     ],
     allow_credentials=True,
@@ -27,7 +27,7 @@ app.add_middleware(
 app.include_router(todos.router)
 app.include_router(notes.router)
 app.include_router(tags.router)  
-app.include_router(stats.router)  # 添加stats路由
+app.include_router(stats.router)  
   
 
 @app.get("/")
