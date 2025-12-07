@@ -22,6 +22,8 @@ uvicorn app.main:app --reload
 
 - `http://127.0.0.1:8000/redoc` → Redoc 文档
 
+- `http://127.0.0.1:8000/openapi.json` → OpenAPI JSON 文档
+
 ## 对接前端
 
 前端发请求到 `http://127.0.0.1:8000/todos` 或 `/notes`
