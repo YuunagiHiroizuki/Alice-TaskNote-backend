@@ -1,7 +1,8 @@
-# models.py - 在现有基础上添加统计相关模型
+# models.py - 修正后的版本
+from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, Text, JSON, Enum, Float, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime
 import enum
 from .database import Base
 
@@ -12,31 +13,23 @@ class PriorityEnum(str, enum.Enum):
     MEDIUM = "medium"
     HIGH = "high"
     
-
 # 状态枚举
 class StatusEnum(str, enum.Enum):
     TODO = "todo"
     DOING = "doing"
     DONE = "done"
 
-class Todo(Base):
-    __tablename__ = "todos"
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    is_done = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-# ========== 原有模型保持不变 ==========
 class Tag(Base):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     color = Column(String)
-    # 关联任务和笔记（多对多）
+    # 关联任务（多对多，需中间表）
     tasks = relationship("TaskTag", back_populates="tag")
     notes = relationship("NoteTag", back_populates="tag")
 
+# 任务-标签中间表（多对多关联）
 class TaskTag(Base):
     __tablename__ = "task_tags"
 
@@ -57,15 +50,16 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String, default="task")
+    type = Column(String, default="task")  # 固定为 task
     title = Column(String, index=True)
     content = Column(String)
-    status = Column(String, default="todo")
-    priority = Column(String, default="none")
-    deadline = Column(Date, nullable=True)
-    isPinned = Column(Boolean, default=False)
-    createdAt = Column(DateTime, default=datetime.utcnow)
-    updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    status = Column(String, default="todo")  # todo/done
+    priority = Column(String, default="none")  # high/medium/low/none
+    deadline = Column(Date, nullable=True)  # 截止日期
+    isPinned = Column(Boolean, default=False)  # 是否置顶
+    createdAt = Column(DateTime, default=datetime.utcnow)  # 创建时间
+    updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)  # 更新时间
+    # 关联标签（多对多）
     tags = relationship("TaskTag", back_populates="task")
 
 class Note(Base):

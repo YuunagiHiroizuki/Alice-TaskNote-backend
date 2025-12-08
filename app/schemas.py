@@ -19,21 +19,61 @@ class StatusEnum(str, Enum):
 class Tag(BaseModel):
     id: int
     name: str
-    color: str
+    color: Optional[str] = None  # 允许颜色可选，与 TagCreate 保持一致
     
     model_config = ConfigDict(from_attributes=True)  # 改为新的配置方式
 
-class TodoCreate(BaseModel):
-    title: str
-    is_done: Optional[bool] = False
-    
-class TodoOut(TodoCreate):
-    id: int
-    created_at: str
 
-    model_config = {
-        "from_attributes": True
-    }
+# 对应前端的 CreateTaskParams 接口（创建任务的请求参数）
+class TaskCreate(BaseModel):
+    title: str
+    content: str
+    status: Optional[str] = Field(default="todo", pattern="^(todo|done)$")
+    priority: str = Field(pattern="^(high|medium|low|none)$")
+    deadline: Optional[date] = None
+    tags: Optional[List[int]] = None
+
+# 对应前端的 UpdateTaskParams 类型
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    status: Optional[str] = Field(default=None, pattern="^(todo|done)$")
+    isPinned: Optional[bool] = None
+    priority: Optional[str] = Field(default=None, pattern="^(high|medium|low|none)$")
+    deadline: Optional[date] = None
+    tags: Optional[List[int]] = None
+    
+
+# 对应前端的 Item 接口
+class TaskResponse(BaseModel):
+    id: int
+    type: str = "task"
+    title: str
+    content: str
+    status: str = Field(pattern="^(todo|done)$")
+    priority: str = Field(pattern="^(high|medium|low|none)$")
+    deadline: Optional[date] = None
+    tags: Optional[List[Tag]] = None
+    isPinned: bool
+    createdAt: str
+    updatedAt: str
+
+
+    class Config:
+        orm_mode = True
+
+class TagCreate(BaseModel):
+    name: str
+    color: Optional[str] = None # 允许颜色可选
+
+# 标签和计数响应
+class TagCountResponse(Tag):
+    count: int  # 总计数（任务+笔记）
+    task_count: int = 0  # 任务计数
+    note_count: int = 0  # 笔记计数
+    
+    model_config = ConfigDict(from_attributes=True)  # 使用新的配置方式
+
 
 class NoteCreate(BaseModel):
     title: Optional[str] = "未命名笔记"
@@ -58,6 +98,9 @@ class NoteUpdate(BaseModel):
     status: Optional[StatusEnum] = None
     tags: Optional[List[int]] = None
     isPinned: Optional[bool] = None
+
+class NoteTagsUpdate(BaseModel):
+    tags: List[int]
 
 class NoteResponse(BaseModel):
     id: int
@@ -185,4 +228,4 @@ class DailyStatResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)  # 统一使用新的配置方式
+    model_config = ConfigDict(from_attributes=True)  # 统一使用新的配

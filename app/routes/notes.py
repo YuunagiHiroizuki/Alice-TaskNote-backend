@@ -104,13 +104,13 @@ def toggle_pin_note(note_id: int, db: Session = Depends(get_db)):
 @router.patch("/{note_id}/tags", response_model=schemas.NoteResponse)
 def update_note_tags(
     note_id: int,
-    tags: List[int],
+    tag_data: schemas.NoteTagsUpdate,
     db: Session = Depends(get_db)
 ):
     """
     更新笔记的标签
     """
-    note_update = schemas.NoteUpdate(tags=tags)
+    note_update = schemas.NoteUpdate(tags=tag_data.tags)
     db_note = crud.update_note(db=db, note_id=note_id, note_update=note_update)
     if db_note is None:
         raise HTTPException(status_code=404, detail="Note not found")
@@ -136,11 +136,3 @@ def batch_delete_notes(
         "deleted_count": deleted_count,
         "total_requested": len(note_ids)
     }
-
-# 获取所有笔记
-@router.get("/", response_model=list[schemas.NoteOut])
-def read_notes(db: Session = Depends(get_db)):
-    """
-    获取所有笔记
-    """
-    return crud.get_notes(db)

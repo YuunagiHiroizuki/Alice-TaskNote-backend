@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./todo_notes.db"

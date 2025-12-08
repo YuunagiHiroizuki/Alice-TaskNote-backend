@@ -1,7 +1,7 @@
 # main.py - 确保正确导入路由
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import todos, notes, stats # 导入stats
+from .routes import todos, notes, tags, stats 
 from .database import engine
 from .models import * 
 
@@ -12,11 +12,11 @@ app = FastAPI(
     description="任务、笔记和统计管理系统API",
 )
 
-# CORS
+# 配置 CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # 移除末尾斜杠
+        "http://localhost:5173",  
         
     ],
     allow_credentials=True,
@@ -26,7 +26,8 @@ app.add_middleware(
 
 app.include_router(todos.router)
 app.include_router(notes.router)
-app.include_router(stats.router)  # 添加stats路由
+app.include_router(tags.router)  
+app.include_router(stats.router)  
   
 
 @app.get("/")

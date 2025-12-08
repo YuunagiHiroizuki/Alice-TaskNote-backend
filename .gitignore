@@ -208,4 +208,7 @@ marimo/_lsp/
 __marimo__/
 
 .db
+<<<<<<< HEAD
+=======
 todo_notes.db
+>>>>>>> b4ddca8700aeaa684e78bb054dfa02bbc0d2db90
