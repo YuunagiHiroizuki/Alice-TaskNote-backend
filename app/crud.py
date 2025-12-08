@@ -58,8 +58,8 @@ def create_task(db: Session, task: schemas.TaskCreate):
         isPinned=False
     )
     db.add(db_task)
-    db.commit()  # 添加这行
-    db.refresh(db_task)  # 添加这行
+    db.commit() 
+    db.refresh(db_task)  
 
     # 处理标签关联
     if task.tags:
@@ -73,9 +73,7 @@ def create_task(db: Session, task: schemas.TaskCreate):
 
     return get_task(db, db_task.id)
     
-# TODO
-
-
+# 4. 更新任务
 def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if db_task is None:
@@ -243,21 +241,6 @@ def get_note(db: Session, note_id: int):
     }
 
 
-
-    if task.tags:
-        # 批量查询标签是否存在
-        tags = db.query(models.Tag).filter(models.Tag.id.in_(task.tags)).all()
-        if len(tags) != len(task.tags):
-            # 存在无效标签ID
-            raise HTTPException(status_code=400, detail="Invalid tag ID(s)")
-        # 建立关联
-        for tag in tags:
-            task_tag = models.TaskTag(task_id=db_task.id, tag_id=tag.id)
-            db.add(task_tag)
-        db.commit()
-
-    return get_task(db, db_task.id)
-
 # 4. 更新任务
 def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
     db_task =  db.query(models.Task).filter(models.Task.id  == task_id).first()
@@ -271,7 +254,6 @@ def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
         update_data = task.model_dump(exclude_unset=True)
 
     try:
-        # 先处理 tags：先验证再修改，避免先删后查失败导致丢失
         if "tags" in update_data:
             tag_ids = update_data["tags"] or []
             if tag_ids:
@@ -299,7 +281,6 @@ def update_task(db: Session, task_id: int, task: schemas.TaskUpdate):
         raise
     except Exception as e:
         db.rollback()
-        # 可以记录日志 e，然后返回通用错误
         raise HTTPException(status_code=500, detail="Failed to update task")
 
     return get_task(db, db_task.id)
@@ -366,7 +347,7 @@ def update_note(db: Session, note_id: int, note_update: schemas.NoteUpdate):
         return None
     
     # 更新标签关联
-    update_data = note_update.model_dump(exclude_unset=True)  # 改为 model_dump
+    update_data = note_update.model_dump(exclude_unset=True)  
     if "tags" in update_data:
         # 删除现有标签关联
         db.query(models.NoteTag).filter(models.NoteTag.note_id == note_id).delete()
@@ -459,7 +440,6 @@ def search_notes(db: Session, keyword: Optional[str] = None, tag: Optional[int] 
 
 # 标签
 def get_tags_with_counts(db: Session):
-    # 使用 func.count 和 group_by 来统计每个标签关联的任务和笔记数量
     
     # 1. 查询所有 Tag
     tags = db.query(models.Tag).all()
@@ -559,6 +539,7 @@ def delete_tag(db: Session, tag_id: int):
     db.delete(db_tag)
     db.commit()
     return True
+
 # ========== 统计相关函数 ==========
 
 def get_all_stats(db: Session):
